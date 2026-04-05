@@ -45,4 +45,28 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+     // Auctions created (as seller)
+    public function auctions()
+    {
+        return $this->hasMany(Auction::class);
+    }
+
+    // Bids placed
+    public function bids()
+    {
+        return $this->hasMany(Bid::class);
+    }
+
+    // Transactions as buyer
+    public function boughtTransactions()
+    {
+        return $this->hasMany(Transaction::class, 'buyer_id');
+    }
+
+    // Transactions as seller
+    public function soldTransactions()
+    {
+        return $this->hasMany(Transaction::class, 'seller_id');
+    }
 }
