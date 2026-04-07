@@ -41,4 +41,9 @@ class Auction extends Model
     {
         return $this->hasOne(Transaction::class);
     }
+
+    protected $casts = [
+    'start_time' => 'datetime',
+    'end_time' => 'datetime',
+];
 }
