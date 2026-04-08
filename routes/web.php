@@ -27,5 +27,6 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/auctions/create', [AuctionController::class, 'create']);
 Route::post('/auctions', [AuctionController::class, 'store']);
+Route::get('/auctions/{auction}', [AuctionController::class, 'show']) ->name('auctions.show');
  
 require __DIR__.'/auth.php';
