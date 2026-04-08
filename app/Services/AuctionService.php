@@ -109,4 +109,24 @@ class AuctionService
             ]);
         }
     }
+
+    //create an auction 
+    public function createAuction(User $user, array $data): Auction
+{
+    // Handle image (optional)
+    if (isset($data['image'])) {
+        $data['image'] = $data['image']->store('auctions', 'public');
+    }
+
+    return Auction::create([
+        'user_id' => $user->id,
+        'title' => $data['title'],
+        'description' => $data['description'] ?? null,
+        'image' => $data['image'] ?? null,
+        'starting_price' => $data['starting_price'],
+        'current_price' => null,
+        'start_time' => $data['start_time'],
+        'end_time' => $data['end_time'],
+    ]);
+}
 }
