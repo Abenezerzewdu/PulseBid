@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+@layer base {
+    body {
+        @apply bg-surface text-white font-sans antialiased;
+    }
+}
+
+@layer components {
+    .pb-input {
+        @apply w-full bg-surface-bright border-0 rounded-2xl px-4 py-3 text-white placeholder-white/30
+               focus:ring-2 focus:ring-primary/40 focus:bg-surface-bright transition-all duration-200
+               font-sans text-sm;
+    }
+
+    .pb-btn-primary {
+        @apply bg-gradient-to-br from-primary to-primary-container text-surface-lowest font-semibold
+               rounded-4xl px-6 py-3 transition-all duration-200 hover:shadow-glow hover:scale-[1.02]
+               active:scale-[0.98] font-display;
+    }
+
+    .pb-btn-secondary {
+        @apply bg-transparent border border-white/20 text-white font-semibold
+               rounded-4xl px-6 py-3 transition-all duration-200 hover:border-vivid hover:text-vivid
+               hover:shadow-[0_0_16px_rgba(255,0,153,0.25)] font-display;
+    }
+
+    .pb-card {
+        @apply bg-surface-container rounded-3xl p-6;
+    }
+
+    .pulse-dot {
+        @apply w-2 h-2 rounded-full bg-secondary animate-pulse;
+    }
+}

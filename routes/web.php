@@ -26,8 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 //auction
-    Route::get('/auctions/create', [AuctionController::class, 'create']);
-    Route::post('/auctions', [AuctionController::class, 'store']);
+    Route::get('/auctions/create', [AuctionController::class, 'create'])->name('auctions.create');
+    Route::post('/auctions', [AuctionController::class, 'store'])->name('auctions.store');
     Route::get('/auctions/{auction}', [AuctionController::class, 'show']) ->name('auctions.show');
     Route::post('/auctions/{auction}/bid', [BidController::class, 'store'])
     ->name('auctions.bid');

@@ -1,19 +1,10 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps({
-    canResetPassword: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
+    canResetPassword: Boolean,
+    status: String,
 });
 
 const form = useForm({
@@ -31,70 +22,65 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="Log in — PulseBid" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
-        </div>
+        <h2 class="font-display text-2xl font-bold mb-1">Welcome back</h2>
+        <p class="text-sm text-white/40 mb-6">Sign in to your PulseBid account</p>
 
-        <form @submit.prevent="submit">
+        <div v-if="status" class="mb-4 text-sm text-primary bg-primary/10 rounded-2xl px-4 py-3">{{ status }}</div>
+
+        <form @submit.prevent="submit" class="space-y-4">
             <div>
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
+                <label class="block text-xs font-semibold text-white/50 mb-2">Email</label>
+                <input
                     v-model="form.email"
+                    type="email"
                     required
                     autofocus
                     autocomplete="username"
+                    placeholder="you@example.com"
+                    class="pb-input"
+                    :class="form.errors.email ? 'ring-2 ring-vivid/50' : ''"
                 />
-
-                <InputError class="mt-2" :message="form.errors.email" />
+                <p v-if="form.errors.email" class="text-xs text-vivid mt-1">{{ form.errors.email }}</p>
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
+            <div>
+                <label class="block text-xs font-semibold text-white/50 mb-2">Password</label>
+                <input
                     v-model="form.password"
+                    type="password"
                     required
                     autocomplete="current-password"
+                    placeholder="••••••••"
+                    class="pb-input"
+                    :class="form.errors.password ? 'ring-2 ring-vivid/50' : ''"
                 />
-
-                <InputError class="mt-2" :message="form.errors.password" />
+                <p v-if="form.errors.password" class="text-xs text-vivid mt-1">{{ form.errors.password }}</p>
             </div>
 
-            <div class="mt-4 block">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
-                    >
+            <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" v-model="form.remember" class="rounded bg-surface-bright border-0 text-primary focus:ring-primary/40"/>
+                    <span class="text-sm text-white/50">Remember me</span>
                 </label>
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Forgot your password?
+                <Link v-if="canResetPassword" :href="route('password.request')" class="text-xs text-white/40 hover:text-primary transition-colors">
+                    Forgot password?
                 </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Log in
-                </PrimaryButton>
             </div>
+
+            <button
+                type="submit"
+                :disabled="form.processing"
+                class="w-full pb-btn-primary py-3.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {{ form.processing ? 'Signing in...' : 'Sign In' }}
+            </button>
+
+            <p class="text-center text-sm text-white/40">
+                Don't have an account?
+                <Link :href="route('register')" class="text-primary hover:underline">Register</Link>
+            </p>
         </form>
     </GuestLayout>
 </template>

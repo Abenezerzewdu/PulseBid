@@ -1,22 +1,18 @@
 <script setup>
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div
-        class="flex min-h-screen flex-col items-center bg-gray-100 pt-6 sm:justify-center sm:pt-0"
-    >
-        <div>
-            <Link href="/">
-                <ApplicationLogo class="h-20 w-20 fill-current text-gray-500" />
-            </Link>
-        </div>
+    <div class="min-h-screen bg-surface flex flex-col items-center justify-center px-4 py-12">
+        <!-- Logo -->
+        <Link href="/" class="font-display font-bold text-2xl text-white mb-8">
+            Pulse<span class="text-primary">Bid</span>
+        </Link>
 
-        <div
-            class="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg"
-        >
+        <div class="w-full max-w-md bg-surface-container rounded-3xl p-8 shadow-ambient">
             <slot />
         </div>
+
+        <p class="mt-6 text-xs text-white/20">© 2024 PulseBid Kinetic Marketplace</p>
     </div>
 </template>
