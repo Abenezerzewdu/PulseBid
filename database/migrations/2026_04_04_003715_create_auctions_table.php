@@ -23,6 +23,8 @@ return new class extends Migration
 
         $table->decimal('starting_price', 10, 2);
         $table->decimal('current_price', 10, 2)->nullable();
+        $table->string('slug')->unique();
+
 
         $table->dateTime('start_time');
 $table->dateTime('end_time');

@@ -16,6 +16,7 @@ class Auction extends Model
         'start_time',
         'end_time',
         'winner_id',
+        'slug',
     ];
 
     // Seller (owner of auction)
@@ -42,6 +43,10 @@ class Auction extends Model
         return $this->hasOne(Transaction::class);
     }
 
+    public function getRouteKeyName()
+{
+    return 'slug';
+}
     protected $casts = [
     'start_time' => 'datetime',
     'end_time' => 'datetime',

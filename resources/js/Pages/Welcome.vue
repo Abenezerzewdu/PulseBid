@@ -60,7 +60,7 @@ const featuredAuctions = [
                     </p>
                     <div class="mt-8 flex flex-wrap gap-4">
                         <Link
-                            href="/auctions/create"
+                            href="/auctions"
                             class="pb-btn-primary text-base px-8 py-3.5"
                         >
                             Start Bidding

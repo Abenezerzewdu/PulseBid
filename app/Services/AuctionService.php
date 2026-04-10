@@ -6,7 +6,7 @@ use App\Models\Bid;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-
+use Illuminate\Support\Str;
 class AuctionService
 {
     public function placeBid(User $user, Auction $auction, float $amount): array
@@ -118,6 +118,15 @@ class AuctionService
         $data['image'] = $data['image']->store('auctions', 'public');
     }
 
+    $slug = Str::slug($data['title']);
+
+$originalSlug = $slug;
+$count = 1;
+
+while (Auction::where('slug', $slug)->exists()) {
+    $slug = $originalSlug . '-' . $count++;
+}
+
     return Auction::create([
         'user_id' => $user->id,
         'title' => $data['title'],
@@ -127,6 +136,7 @@ class AuctionService
         'current_price' => null,
         'start_time' => $data['start_time'],
         'end_time' => $data['end_time'],
+        'slug' => $slug,
     ]);
 }
 }

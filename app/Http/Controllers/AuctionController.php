@@ -10,6 +10,9 @@ use Inertia\Inertia;
 
 class AuctionController extends Controller
 {
+   public function index(){
+      return Inertia::render('Auctions/Index');
+   }
     public function store(
     StoreAuctionRequest $request,
     AuctionService $service
@@ -19,7 +22,7 @@ class AuctionController extends Controller
         $request->validated()
     );
 
-    return redirect()->route('auctions.show', $auction->id);
+    return redirect()->route('auctions.show', $auction->slug);
 }
 
     public function create() {
