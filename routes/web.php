@@ -2,20 +2,14 @@
 
 use App\Http\Controllers\AuctionController;
 use App\Http\Controllers\BidController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserDashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/',[HomeController::class,'index']);
 
 Route::get('/dashboard',[UserDashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -32,6 +26,7 @@ Route::middleware('auth')->group(function () {
     ->name('auctions.bid');
 });
 Route::get('/auctions',[AuctionController::class,'index']);
-
- 
+Route::get('/how',function(){
+   return Inertia::render('HowItWorks');
+});
 require __DIR__.'/auth.php';

@@ -24,11 +24,9 @@ return new class extends Migration
         $table->decimal('starting_price', 10, 2);
         $table->decimal('current_price', 10, 2)->nullable();
         $table->string('slug')->unique();
-
-
-        $table->dateTime('start_time');
-$table->dateTime('end_time');
-
+         $table->dateTime('start_time');
+         $table->dateTime('end_time');
+        $table->enum('status',['ended','live','upcoming'])->default('upcoming');
         $table->foreignId('winner_id')->nullable()->constrained('users')->nullOnDelete();
 
         $table->timestamps();

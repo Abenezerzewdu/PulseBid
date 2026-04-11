@@ -1,40 +1,44 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
 import PulseBidLayout from "@/Layouts/PulseBidLayout.vue";
+import { router } from "@inertiajs/vue3";
+import StartingSoon from "@/Components/StartingSoon.vue";
+import LiveStatus from "@/Components/LiveStatus.vue";
 
 defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
+    featuredAuctions: Array,
     laravelVersion: String,
     phpVersion: String,
 });
 
-const featuredAuctions = [
-    {
-        id: 1,
-        title: "Neon Zenith: Limited 1988 Archive",
-        status: "live",
-        timeLeft: "02h 11m 56s",
-        currentBid: "4.82 ETB",
-        image: null,
-    },
-    {
-        id: 2,
-        title: "Vitra Lounge: Artisan Edition #04",
-        status: "upcoming",
-        startsIn: "06h 21m",
-        reservePrice: "1.20 ETB",
-        image: null,
-    },
-    {
-        id: 3,
-        title: "Neural Linker: Modular Core Prototype",
-        status: "live",
-        timeLeft: "44m 10s",
-        currentBid: "22.10 ETB",
-        image: null,
-    },
-];
+// const featuredAuctions = [
+//     {
+//         id: 1,
+//         title: "Neon Zenith: Limited 1988 Archive",
+//         status: "live",
+//         timeLeft: "02h 11m 56s",
+//         currentBid: "4.82 ETB",
+//         image: null,
+//     },
+//     {
+//         id: 2,
+//         title: "Vitra Lounge: Artisan Edition #04",
+//         status: "upcoming",
+//         startsIn: "06h 21m",
+//         reservePrice: "1.20 ETB",
+//         image: null,
+//     },
+//     {
+//         id: 3,
+//         title: "Neural Linker: Modular Core Prototype",
+//         status: "live",
+//         timeLeft: "44m 10s",
+//         currentBid: "22.10 ETB",
+//         image: null,
+//     },
+// ];
 </script>
 
 <template>
@@ -65,9 +69,13 @@ const featuredAuctions = [
                         >
                             Start Bidding
                         </Link>
-                        <button class="pb-btn-secondary text-base px-8 py-3.5">
-                            How it works
-                        </button>
+                        <Link href="/how"
+                            ><button
+                                class="pb-btn-secondary text-base px-8 py-3.5"
+                            >
+                                How it works
+                            </button></Link
+                        >
                     </div>
                 </div>
 
@@ -77,8 +85,12 @@ const featuredAuctions = [
                         class="bg-surface-container rounded-3xl overflow-hidden aspect-[4/3] flex items-center justify-center relative"
                     >
                         <div
+                            v-for="item in featuredAuctions"
+                            :key="item.id"
                             class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10"
-                        ></div>
+                        >
+                            <img :src="`/storage/${item.image}`" alt="image" />
+                        </div>
                         <div class="text-center text-white/20">
                             <svg
                                 class="w-24 h-24 mx-auto"
@@ -184,7 +196,15 @@ const featuredAuctions = [
                     >
                         <div
                             class="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"
-                        ></div>
+                        >
+                            <img
+                                v-if="item.image"
+                                :src="`/storage/${item.image}`"
+                                alt=""
+                            />
+                        </div>
+
+                        <!-- no image icon -->
                         <svg
                             class="w-16 h-16 text-white/10"
                             fill="none"
@@ -199,22 +219,15 @@ const featuredAuctions = [
                             />
                         </svg>
                         <!-- Status badge -->
-                        <div class="absolute top-3 left-3">
-                            <span
-                                v-if="item.status === 'live'"
-                                class="flex items-center gap-1.5 bg-primary/20 text-primary text-xs font-semibold px-2.5 py-1 rounded-full"
-                            >
-                                <span
-                                    class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"
-                                ></span>
-                                LIVE
-                            </span>
-                            <span
-                                v-else
-                                class="bg-surface-bright text-white/60 text-xs font-semibold px-2.5 py-1 rounded-full"
-                            >
-                                STARTING SOON
-                            </span>
+                        <!-- <div>
+                            {{ item.status === "live" ? <LiveStatus /> :
+                            <StartingSoon />}}
+                        </div> -->
+                        <div v-if="item.status === 'live'">
+                            <LiveStatus />
+                        </div>
+                        <div v-if="item.status === 'upcoming'">
+                            <StartingSoon />
                         </div>
                     </div>
 
@@ -255,7 +268,7 @@ const featuredAuctions = [
                                 </p>
                             </div>
                             <Link
-                                :href="`/auctions/${item.id}`"
+                                :href="`/auctions/${item.slug}`"
                                 class="pb-btn-primary text-xs py-2 px-4"
                             >
                                 {{
