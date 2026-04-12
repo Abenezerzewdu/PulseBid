@@ -7,7 +7,7 @@ const user = computed(() => page.props.auth?.user);
 const mobileOpen = ref(false);
 
 const navLinks = [
-    { label: "Explore", href: "/" },
+    { label: "Explore", href: "/auctions" },
     { label: "Live", href: "/auctions?filter=live" },
     { label: "Upcoming", href: "/auctions?filter=upcoming" },
 ];

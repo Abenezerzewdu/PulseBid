@@ -88,7 +88,7 @@ const props = defineProps({
                     </p>
                 </Link>
                 <Link
-                    href="/"
+                    href="/auctions"
                     class="group bg-surface-container rounded-3xl p-6 hover:bg-surface-bright transition-all duration-200 hover:-translate-y-1 hover:shadow-ambient"
                 >
                     <div
