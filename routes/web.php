@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuctionController;
 use App\Http\Controllers\BidController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,11 @@ Route::middleware('auth')->group(function () {
 
     // Bidding — protected: guests are shown a "Login to bid" notice on the Show page
     Route::post('/auctions/{auction}/bid', [BidController::class, 'store'])->name('auctions.bid');
+
+    // Messaging
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{transaction}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{transaction}', [MessageController::class, 'store'])->name('messages.store');
 });
 
 require __DIR__.'/auth.php';

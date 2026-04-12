@@ -10,8 +10,14 @@ class Message extends Model
         'transaction_id',
         'sender_id',
         'content',
+        'read_at',
+        'type',
+        'attachment_path',
     ];
 
+    /**
+     * Get the transaction this message belongs to.
+     */
     public function transaction()
     {
         return $this->belongsTo(Transaction::class);
