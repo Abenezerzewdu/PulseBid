@@ -4,18 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PlaceBidRequest;
 use App\Models\Auction;
- use App\Services\AuctionService;
+use App\Services\AuctionService;
+
 class BidController extends Controller
 {
-//bid placing
-     public function store(PlaceBidRequest $request, Auction $auction, AuctionService $service)
+    /**
+     * Place a bid on an auction.
+     *
+     * On success  → redirect back to the auction show page with a flash notice.
+     * On failure  → Laravel's ValidationException automatically flashes errors
+     *               back to the Inertia page (no extra handling needed).
+     */
+    public function store(PlaceBidRequest $request, Auction $auction, AuctionService $service)
     {
-        $result = $service->placeBid(
-            user: $request->user(),
+        $service->placeBid(
+            user:    $request->user(),
             auction: $auction,
-            amount: $request->amount
+            amount:  (float) $request->amount,
         );
 
-        return response()->json($result);
+        return redirect()
+            ->route('auctions.show', $auction->slug)
+            ->with('success', 'Your bid was placed successfully!');
     }
 }
