@@ -11,6 +11,8 @@ const navLinks = [
     { label: "Live", href: "/auctions?filter=live" },
     { label: "Upcoming", href: "/auctions?filter=upcoming" },
 ];
+// for new messages only notification icon will have the red points to be done
+const hasNewMessages = ref(false);
 </script>
 
 <template>
@@ -87,6 +89,7 @@ const navLinks = [
                                     />
                                 </svg>
                                 <span
+                                    v-if="hasNewMessages"
                                     class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-vivid rounded-full"
                                 ></span></button
                         ></Link>
