@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
-    /**
-     * Display the message dashboard with all conversations.
-     */
+    
+    //   Display the message dashboard with all conversations.
+     
     public function index()
     {
         $user = auth()->user();
