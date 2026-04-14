@@ -4,13 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Message;
 use App\Models\Transaction;
+use App\Services\MessageService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class MessageController extends Controller
 {
-    
+    protected $messageService;
+
+    public function __construct(MessageService $messageService)
+    {
+        $this->messageService = $messageService;
+    }
+
     //   Display the message dashboard with all conversations.
      
     public function index()
@@ -101,25 +108,20 @@ class MessageController extends Controller
      */
     public function store(Request $request, Transaction $transaction)
     {
+    //Check whether the user have won bid and made transaction
         $this->authorizeAccess($transaction);
 
-        $request->validate([
+        $validated=$request->validate([
             'content' => 'required_without:attachment|string|nullable',
             'attachment' => 'nullable|file|max:10240', // 10MB max
             'type' => 'required|in:text,file',
         ]);
 
-        $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('attachments', 'public');
-        }
-
-        $message = $transaction->messages()->create([
-            'sender_id' => auth()->id(),
-            'content' => $request->content,
-            'type' => $request->type,
-            'attachment_path' => $attachmentPath,
-        ]);
+         $message = $this->messageService->sendMessage(
+        $transaction,
+        auth()->user(),
+        $validated
+    );
 
         return response()->json($message);
     }
