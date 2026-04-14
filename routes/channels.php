@@ -2,6 +2,12 @@
 
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+use App\Models\Transaction;
+
+Broadcast::channel('chat.{transactionId}', function ($user, $transactionId) {
+    $transaction = Transaction::find($transactionId);
+
+    return $transaction &&
+        ($transaction->buyer_id === $user->id ||
+         $transaction->seller_id === $user->id);
 });

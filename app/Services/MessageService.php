@@ -27,6 +27,8 @@ class MessageService
             'attachment_path' => $attachmentPath,
         ]);
 
+        //  Fire WebSocket event
+            event(new MessageSent($message));
         return $message;
     }
 }
