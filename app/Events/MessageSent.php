@@ -16,6 +16,7 @@ class MessageSent implements ShouldBroadcast
         $this->message = $message->load('sender');
     }
 
+    
     public function broadcastOn()
     {
         return new PrivateChannel('chat.' . $this->message->transaction_id);
@@ -33,6 +34,7 @@ class MessageSent implements ShouldBroadcast
                 ? Storage::url($this->message->attachment_path)
                 : null,
             'created_at' => $this->message->created_at->toIso8601String(),
+            'transaction_id' => $this->message->transaction_id,
         ];
     }
 }

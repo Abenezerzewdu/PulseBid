@@ -1,5 +1,7 @@
 <?php
-namespace App\Services;;
+namespace App\Services;
+
+use App\Events\MessageSent;
 
 class MessageService
 {

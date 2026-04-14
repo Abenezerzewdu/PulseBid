@@ -4,14 +4,7 @@ import { Head, usePage, Link } from "@inertiajs/vue3";
 import PulseBidLayout from "@/Layouts/PulseBidLayout.vue";
 import axios from "axios";
 
-onMounted(() => {
-    Echo.private(`chat.${props.transaction.id}`).listen("MessageSent", (e) => {
-        messages.value.push(e);
-
-        // optional UX
-        scrollToBottom();
-    });
-});
+// Echo setup will be handled at the bottom of the script
 
 const props = defineProps({
     conversations: Array,
@@ -27,7 +20,6 @@ const isSending = ref(false);
 const chatContainer = ref(null);
 const fileInput = ref(null);
 const searchQuery = ref("");
-const pollingInterval = ref(null);
 
 // Filter conversations based on search
 const filteredConversations = computed(() => {
@@ -40,14 +32,10 @@ const filteredConversations = computed(() => {
     );
 });
 
-// Select a conversation and fetch messages
 const selectConversation = async (conversation) => {
     selectedConversation.value = conversation;
     await fetchMessages();
     scrollToBottom();
-
-    // Start polling for new messages in this conversation
-    startPolling();
 };
 
 const fetchMessages = async () => {
@@ -102,16 +90,7 @@ const scrollToBottom = () => {
     });
 };
 
-const startPolling = () => {
-    stopPolling();
-    pollingInterval.value = setInterval(fetchMessages, 5000); // Poll every 5 seconds
-};
-
-const stopPolling = () => {
-    if (pollingInterval.value) {
-        clearInterval(pollingInterval.value);
-    }
-};
+// Polling replaced with WebSockets
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -123,10 +102,38 @@ onMounted(() => {
         // Optionally auto-select the first conversation
         // selectConversation(props.conversations[0]);
     }
+
+    if (window.Echo) {
+        props.conversations.forEach(conv => {
+            window.Echo.private(`chat.${conv.id}`).listen("MessageSent", (e) => {
+                if (selectedConversation.value && selectedConversation.value.id === e.transaction_id) {
+                    messages.value.push(e);
+                    scrollToBottom();
+                }
+                
+                // Update the sidebar items
+                const targetConv = props.conversations.find(c => c.id === e.transaction_id);
+                if (targetConv) {
+                    targetConv.latest_message = {
+                        content: e.content,
+                        type: e.type,
+                        created_at: e.created_at
+                    };
+                    if (!selectedConversation.value || selectedConversation.value.id !== e.transaction_id) {
+                        targetConv.unread_count++;
+                    }
+                }
+            });
+        });
+    }
 });
 
 onUnmounted(() => {
-    stopPolling();
+    if (window.Echo) {
+        props.conversations.forEach(conv => {
+            window.Echo.leave(`chat.${conv.id}`);
+        });
+    }
 });
 
 // Auto-scroll when new messages arrive
