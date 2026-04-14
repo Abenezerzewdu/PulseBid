@@ -44,11 +44,42 @@ class Auction extends Model
     }
 
     public function getRouteKeyName()
-{
-    return 'slug';
-}
+    {
+        return 'slug';
+    }
+
+    public function scopeFilter($query, array $filters)
+    {
+        $now = \Carbon\Carbon::now();
+
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        });
+
+        $query->when($filters['status'] ?? null, function ($query, $status) use ($now) {
+            if ($status !== 'all') {
+                match ($status) {
+                    'live' => $query->where('start_time', '<=', $now)->where('end_time', '>=', $now),
+                    'upcoming' => $query->where('start_time', '>', $now),
+                    'ended' => $query->where('end_time', '<', $now),
+                    default => $query,
+                };
+            }
+        });
+    }
+
+    public function scopeSort($query, ?string $sort)
+    {
+        match ($sort) {
+            'ending' => $query->orderBy('end_time', 'asc'),
+            'price_asc' => $query->orderBy('current_price', 'asc'),
+            'price_desc' => $query->orderBy('current_price', 'desc'),
+            default => $query->orderBy('created_at', 'desc'),
+        };
+    }
+
     protected $casts = [
-    'start_time' => 'datetime',
-    'end_time' => 'datetime',
-];
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+    ];
 }
