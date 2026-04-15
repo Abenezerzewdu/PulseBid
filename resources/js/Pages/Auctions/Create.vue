@@ -18,6 +18,15 @@ const form = ref({
     extra_images: [],
 });
 
+const userTimezone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+const setStartTimeToNow = () => {
+    const now = new Date();
+    const tzOffsetMs = now.getTimezoneOffset() * 60000;
+    const localISO = new Date(now.getTime() - tzOffsetMs).toISOString().slice(0, 16);
+    form.value.start_time = localISO;
+};
+
 const imagePreview = ref(null);
 const extraPreviews = ref([null, null, null]);
 const isDragging = ref(false);
@@ -52,12 +61,23 @@ const handleExtraImage = (e, index) => {
     reader.readAsDataURL(file);
 };
 
-const computedEndTime = computed(() => {
+const computedEndTimeUTC = computed(() => {
     if (!form.value.start_time) return '';
     const start = new Date(form.value.start_time);
     const hours = durationOptions.find(d => d.value === form.value.duration)?.hours || 24;
     start.setHours(start.getHours() + hours);
-    return start.toISOString().slice(0, 16);
+    return start.toISOString();
+});
+
+const displayEndTime = computed(() => {
+    if (!computedEndTimeUTC.value) return '';
+    const date = new Date(computedEndTimeUTC.value);
+    return date.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 });
 
 const relativeStartTime = computed(() => {
@@ -95,12 +115,16 @@ onMounted(() => {
 
 const submit = () => {
     isSubmitting.value = true;
+    
+    // Ensure we send UTC timestamps to the backend
+    const startTimeUTC = new Date(form.value.start_time).toISOString();
+    
     router.post('/auctions', {
         title: form.value.title,
         description: form.value.description,
         starting_price: form.value.starting_price,
-        start_time: form.value.start_time,
-        end_time: computedEndTime.value,
+        start_time: startTimeUTC,
+        end_time: computedEndTimeUTC.value,
         image: form.value.image,
     }, {
         forceFormData: true,
@@ -251,7 +275,16 @@ const submit = () => {
                     <div class="bg-surface-container rounded-3xl p-5">
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-white/50 mb-2 tracking-wide">Start Date & Time</label>
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-xs font-semibold text-white/50 tracking-wide">Start Date & Time</label>
+                                    <button 
+                                        type="button" 
+                                        @click="setStartTimeToNow"
+                                        class="text-[10px] uppercase tracking-wider font-bold text-primary hover:text-primary-bright transition-colors bg-primary/10 px-2 py-0.5 rounded-md"
+                                    >
+                                        Now
+                                    </button>
+                                </div>
                                 <div class="relative">
                                     <input
                                         v-model="form.start_time"
@@ -263,7 +296,10 @@ const submit = () => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>
-                                <p v-if="relativeStartTime" class="text-xs text-primary mt-1">{{ relativeStartTime }}</p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <p v-if="relativeStartTime" class="text-[10px] text-primary font-medium">{{ relativeStartTime }}</p>
+                                    <p class="text-[10px] text-white/30 truncate ml-auto">Timezone: {{ userTimezone }}</p>
+                                </div>
                                 <p v-if="errors.start_time" class="text-xs text-vivid mt-1">{{ errors.start_time }}</p>
                             </div>
                             <div>

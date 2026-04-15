@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
-
+ use Carbon\Carbon;
 /**
  * Service: AuctionService
  * 
@@ -104,19 +104,27 @@ class AuctionService
     }
 
    //cooldown bids in <5 secs
-    private function ensureCooldown(User $user, Auction $auction): void
-    {
-        $lastBid = Bid::where('user_id', $user->id)
-            ->where('auction_id', $auction->id)
-            ->latest()
-            ->first();
+  
 
-        if ($lastBid && now()->diffInSeconds($lastBid->created_at) < 5) {
-            throw ValidationException::withMessages([
-                'cooldown' => 'Please wait before placing another bid',
-            ]);
-        }
+private function ensureCooldown(User $user, Auction $auction): void
+{
+    $lastBid = Bid::where('user_id', $user->id)
+        ->where('auction_id', $auction->id)
+        ->latest()
+        ->first();
+
+    if (!$lastBid) {
+        return;
     }
+
+    $secondsPassed = $lastBid->created_at->diffInSeconds(now());
+
+    if ($secondsPassed < 5) {
+        throw ValidationException::withMessages([
+            'cooldown' => "Wait " . (5 - $secondsPassed) . " seconds before bidding again",
+        ]);
+    }
+}
 
     //to add 10 sec on the last 
     private function handleAntiSniping(Auction $auction): void
