@@ -14,37 +14,35 @@ class ProcessEndedAuctions extends Command
 
     public function handle()
     {
-        $endedAuctions = Auction::whereNull('winner_id')
+        Auction::whereNull('winner_id')
             ->where('end_time', '<=', now())
-            ->get();
+            ->chunk(100, function ($endedAuctions) {
+                foreach ($endedAuctions as $auction) {
+                    DB::transaction(function () use ($auction) {
+                        $highestBid = $auction->bids()
+                            ->orderByDesc('amount')
+                            ->first();
 
-        foreach ($endedAuctions as $auction) {
+                        // If no bids → skip
+                        if (!$highestBid) {
+                            return;
+                        }
 
-            DB::transaction(function () use ($auction) {
+                        // Set winner
+                        $auction->update([
+                            'winner_id' => $highestBid->user_id
+                        ]);
 
-                $highestBid = $auction->bids()
-                    ->orderByDesc('amount')
-                    ->first();
-
-                // If no bids → skip
-                if (!$highestBid) {
-                    return;
+                        // Create transaction
+                        Transaction::create([
+                            'auction_id' => $auction->id,
+                            'seller_id' => $auction->user_id,
+                            'buyer_id' => $highestBid->user_id,
+                            'status' => 'pending',
+                        ]);
+                    });
                 }
-
-                // Set winner
-                $auction->update([
-                    'winner_id' => $highestBid->user_id
-                ]);
-
-                // Create transaction
-                Transaction::create([
-                    'auction_id' => $auction->id,
-                    'seller_id' => $auction->user_id,
-                    'buyer_id' => $highestBid->user_id,
-                    'status' => 'pending',
-                ]);
             });
-        }
 
         $this->info('Ended auctions processed successfully.');
     }

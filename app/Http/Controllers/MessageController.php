@@ -32,6 +32,10 @@ class MessageController extends Controller
         ->with(['auction', 'seller', 'buyer', 'messages' => function ($query) {
             $query->latest()->limit(1);
         }])
+        ->withCount(['messages as unread_count' => function ($query) use ($user) {
+            $query->where('sender_id', '!=', $user->id)
+                  ->whereNull('read_at');
+        }])
         ->get()
         ->map(function ($transaction) use ($user) {
             $otherUser = $transaction->seller_id === $user->id 
@@ -39,10 +43,6 @@ class MessageController extends Controller
                 : $transaction->seller;
 
             $latestMessage = $transaction->messages->first();
-            $unreadCount = $transaction->messages()
-                ->where('sender_id', '!=', $user->id)
-                ->whereNull('read_at')
-                ->count();
 
             return [
                 'id' => $transaction->id,
@@ -61,7 +61,7 @@ class MessageController extends Controller
                     'type' => $latestMessage->type,
                     'created_at' => $latestMessage->created_at->toIso8601String(),
                 ] : null,
-                'unread_count' => $unreadCount,
+                'unread_count' => $transaction->unread_count,
             ];
         })
         ->sortByDesc(fn($t) => $t['latest_message']['created_at'] ?? '0')
