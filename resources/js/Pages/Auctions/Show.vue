@@ -95,6 +95,11 @@ const setQuickBid = (val) => {
     bidAmount.value = val;
 };
 
+const placeInstantBid = (val) => {
+    bidAmount.value = val;
+    placeBid();
+};
+
 const placeBid = () => {
     if (!bidAmount.value) return;
     isSubmitting.value = true;
@@ -130,10 +135,22 @@ const isHighestBidder = computed(() => {
 onMounted(() => {
     updateCountdown();
     timer = setInterval(updateCountdown, 1000);
+
+    // Real-time bidirectional listeners for auctions
+    window.Echo.channel(`auction.${props.auction.id}`)
+        .listen('BidPlaced', (e) => {
+            if (!props.auction.bids) props.auction.bids = [];
+            // Only add if it doesn't already exist (in case local inertia onSuccess updated it first)
+            if (!props.auction.bids.find(b => b.id === e.bid.id)) {
+                props.auction.bids.push(e.bid);
+            }
+            props.auction.current_price = e.bid.amount;
+        });
 });
 onUnmounted(() => {
     clearInterval(timer);
     clearTimeout(successTimer);
+    window.Echo.leaveChannel(`auction.${props.auction.id}`);
 });
 </script>
 
@@ -433,10 +450,11 @@ onUnmounted(() => {
                                 v-for="q in quickBidAmounts"
                                 :key="q.label"
                                 type="button"
-                                @click="setQuickBid(q.value)"
-                                class="py-2 rounded-2xl text-xs font-semibold bg-surface-bright hover:bg-surface-variant text-white/60 hover:text-white transition-colors"
+                                @click="placeInstantBid(q.value)"
+                                :disabled="isSubmitting"
+                                class="py-2.5 rounded-xl text-xs font-semibold bg-surface-bright hover:bg-white/10 text-white/70 hover:text-white transition-all shadow-ambient hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed border border-white/5"
                             >
-                                {{ q.label }}
+                                Instant {{ q.label }}
                             </button>
                         </div>
 

@@ -36,6 +36,15 @@ class AuctionService
             // Handle anti-sniping
             $this->handleAntiSniping($auction);
 
+            // Broadcast real-time event to clients viewing the auction
+            \App\Events\BidPlaced::dispatch($auction->id, [
+                'id' => $bid->id,
+                'amount' => $bid->amount,
+                'user_id' => $bid->user_id,
+                'created_at' => $bid->created_at,
+                'user' => ['name' => $user->name],
+            ]);
+
             return [
                 'message' => 'Bid placed successfully',
                 'current_price' => $auction->current_price,
