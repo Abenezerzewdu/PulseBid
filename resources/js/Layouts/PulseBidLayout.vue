@@ -1,10 +1,24 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { Link, usePage } from "@inertiajs/vue3";
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 const mobileOpen = ref(false);
+
+const flashSuccess = computed(() => page.props.flash?.success);
+const showToast = ref(false);
+const toastMessage = ref("");
+
+watch(flashSuccess, (newVal) => {
+    if (newVal) {
+        toastMessage.value = newVal;
+        showToast.value = true;
+        setTimeout(() => {
+            showToast.value = false;
+        }, 5000);
+    }
+}, { immediate: true });
 
 const navLinks = [
     { label: "Explore", href: "/auctions" },
@@ -259,5 +273,42 @@ const hasNewMessages = ref(false);
                 </div>
             </div>
         </footer>
+
+        <!-- Toast Notification -->
+        <transition name="toast">
+            <div
+                v-if="showToast"
+                class="fixed bottom-6 right-6 z-[100] w-full max-w-sm bg-surface-container border border-primary/20 rounded-2xl shadow-ambient p-4 flex items-start gap-4"
+            >
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="flex-1 pt-1.5">
+                    <p class="text-sm font-medium text-white">{{ toastMessage }}</p>
+                </div>
+                <button @click="showToast = false" class="flex-shrink-0 pt-1 text-white/40 hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </transition>
     </div>
 </template>
+
+<style scoped>
+.toast-enter-active,
+.toast-leave-active {
+    transition: all 0.3s ease;
+}
+.toast-enter-from {
+    opacity: 0;
+    transform: translateY(20px) translateX(20px);
+}
+.toast-leave-to {
+    opacity: 0;
+    transform: translateY(20px) translateX(20px);
+}
+</style>

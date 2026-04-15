@@ -38,7 +38,11 @@ class AuctionController extends Controller
             $request->validated()
         );
 
-        return redirect()->route('auctions.show', $auction->slug);
+        $startTime = \Carbon\Carbon::parse($auction->start_time);
+        $diffForHumans = $startTime->diffForHumans();
+
+        return redirect()->route('auctions.show', $auction->slug)
+            ->with('success', "Auction created successfully! It starts {$diffForHumans}.");
     }
 
     public function create()

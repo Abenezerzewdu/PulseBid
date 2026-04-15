@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { Head, Link } from '@inertiajs/vue3';
 import PulseBidLayout from '@/Layouts/PulseBidLayout.vue';
@@ -58,6 +58,39 @@ const computedEndTime = computed(() => {
     const hours = durationOptions.find(d => d.value === form.value.duration)?.hours || 24;
     start.setHours(start.getHours() + hours);
     return start.toISOString().slice(0, 16);
+});
+
+const relativeStartTime = computed(() => {
+    if (!form.value.start_time) return '';
+    const start = new Date(form.value.start_time).getTime();
+    const now = new Date().getTime();
+    const diffInMs = start - now;
+    
+    if (Math.abs(diffInMs) < 60000) return 'Starts now';
+    
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    const diffInMinutes = Math.round(diffInMs / 60000);
+    
+    if (Math.abs(diffInMinutes) < 60) {
+        return `Starts ${rtf.format(diffInMinutes, 'minute')}`;
+    }
+    
+    const diffInHours = Math.round(diffInMinutes / 60);
+    if (Math.abs(diffInHours) < 24) {
+        return `Starts ${rtf.format(diffInHours, 'hour')}`;
+    }
+    
+    const diffInDays = Math.round(diffInHours / 24);
+    return `Starts ${rtf.format(diffInDays, 'day')}`;
+});
+
+onMounted(() => {
+    // Set initial start time to exactly now (local time)
+    const now = new Date();
+    // adjust for local timezone to format as YYYY-MM-DDTHH:mm
+    const tzOffsetMs = now.getTimezoneOffset() * 60000;
+    const localISO = new Date(now.getTime() - tzOffsetMs).toISOString().slice(0, 16);
+    form.value.start_time = localISO;
 });
 
 const submit = () => {
@@ -230,6 +263,7 @@ const submit = () => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>
+                                <p v-if="relativeStartTime" class="text-xs text-primary mt-1">{{ relativeStartTime }}</p>
                                 <p v-if="errors.start_time" class="text-xs text-vivid mt-1">{{ errors.start_time }}</p>
                             </div>
                             <div>
