@@ -10,6 +10,15 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Event: BidPlaced
+ * 
+ * Purpose: 
+ * Resolves the real-time interaction for active auctions. Instructs the application 
+ * to instantly broadcast (via ShouldBroadcastNow) newly placed bids pushed to the database 
+ * out to the Echo / WebSockets server so that frontend Vue clients receive them dynamically 
+ * without page refreshes.
+ */
 class BidPlaced implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;

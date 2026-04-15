@@ -9,6 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
+/**
+ * Controller: MessageController
+ * 
+ * Purpose: 
+ * Handles all functionality relating to the post-auction Messaging hub. 
+ * Allows buyers and sellers who have successfully transacted to view conversation histories, 
+ * send new text/attachments, and seamlessly calculate unread status flags.
+ */
 class MessageController extends Controller
 {
     protected $messageService;
@@ -32,6 +40,9 @@ class MessageController extends Controller
         ->with(['auction', 'seller', 'buyer', 'messages' => function ($query) {
             $query->latest()->limit(1);
         }])
+        // PERFORMANCE FIX: Utilized `withCount` to eager-load and process unread messages
+        // securely within the database driver. This fully prevents an N+1 Query bug where 
+        // a secondary SQL instruction was looped against every transaction model memory object.
         ->withCount(['messages as unread_count' => function ($query) use ($user) {
             $query->where('sender_id', '!=', $user->id)
                   ->whereNull('read_at');

@@ -6,6 +6,18 @@ use App\Models\Auction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * Controller: UserDashboardController
+ * 
+ * Purpose: 
+ * Manages the data payload served to the primary frontend user Dashboard. 
+ * Aggregates statistics about total bids, active personal auctions, 
+ * winnings, and expenditure metrics calculated cleanly.
+ * 
+ * Recent Changes:
+ * Migrated to strict PSR-12 formatting syntax and cleaned up dangling dependency 
+ * imports to strictly preserve clean scalable code architectural standards.
+ */
 class UserDashboardController extends Controller
 {
     public function index()

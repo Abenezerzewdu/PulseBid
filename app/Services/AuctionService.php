@@ -7,6 +7,15 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+
+/**
+ * Service: AuctionService
+ * 
+ * Purpose: 
+ * Handles the strict business logic for mutating Auctions, entirely decoupling 
+ * heavy algorithmic processing (bidding authorization, sniping deterrence) away from 
+ * the Controllers into a clean, reusable architecture layer.
+ */
 class AuctionService
 {
     public function placeBid(User $user, Auction $auction, float $amount): array
@@ -36,7 +45,9 @@ class AuctionService
             // Handle anti-sniping
             $this->handleAntiSniping($auction);
 
-            // Broadcast real-time event to clients viewing the auction
+            // REAL-TIME FIX: Dispatch the secure WebSockets `BidPlaced` event to the Echo channel. 
+            // This guarantees all users statically viewing the Auction page receive dynamic top bid 
+            // increments instantly via the network directly skipping reload.
             \App\Events\BidPlaced::dispatch($auction->id, [
                 'id' => $bid->id,
                 'amount' => $bid->amount,
