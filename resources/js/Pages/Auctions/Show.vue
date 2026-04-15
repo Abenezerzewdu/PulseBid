@@ -17,8 +17,17 @@ const isSubmitting = ref(false);
 // Pre-seed from server flash (covers redirect-then-land scenario)
 const successMsg = ref(flash.value?.success ?? "");
 const countdown = ref({ hours: 0, mins: 0, secs: 0, ended: false });
+const countdownActionType = ref('upcoming');
 let timer = null;
 let successTimer = null;
+
+// Helper to safely parse dates assuming UTC if no offset given
+const parseDateObj = (ds) => {
+    if (!ds) return new Date();
+    let d = ds.replace(' ', 'T');
+    if (!d.includes('Z') && !d.match(/[-+]\d{2}:\d{2}$/)) d += 'Z';
+    return new Date(d);
+};
 
 // Pick up flash that arrives after an Inertia visit (e.g. post-bid redirect)
 watch(() => flash.value?.success, (val) => {
@@ -38,18 +47,31 @@ const currentPrice = computed(
 
 const isLive = computed(() => {
     const now = new Date();
-    const end = new Date(props.auction.end_time);
-    return now < end;
+    const start = parseDateObj(props.auction.start_time);
+    const end = parseDateObj(props.auction.end_time);
+    return now >= start && now < end;
 });
 
 const updateCountdown = () => {
-    const end = new Date(props.auction.end_time);
-    const diff = Math.floor((end - new Date()) / 1000);
-    if (diff <= 0) {
+    const now = new Date();
+    const start = parseDateObj(props.auction.start_time);
+    const end = parseDateObj(props.auction.end_time);
+
+    let diff = 0;
+    
+    if (now < start) {
+        countdownActionType.value = 'upcoming';
+        diff = Math.floor((start - now) / 1000);
+    } else if (now >= start && now < end) {
+        countdownActionType.value = 'live';
+        diff = Math.floor((end - now) / 1000);
+    } else {
+        countdownActionType.value = 'ended';
         countdown.value = { hours: 0, mins: 0, secs: 0, ended: true };
         clearInterval(timer);
         return;
     }
+
     countdown.value = {
         hours: Math.floor(diff / 3600),
         mins: Math.floor((diff % 3600) / 60),
@@ -151,6 +173,13 @@ onUnmounted(() => {
                     <span
                         class="text-xs font-semibold text-secondary tracking-widest"
                         >LIVE BIDDING</span
+                    >
+                </div>
+                <div v-else-if="countdownActionType === 'upcoming'" class="flex items-center gap-2 shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-secondary/80"></span>
+                    <span
+                        class="text-xs font-semibold text-secondary/80 tracking-widest"
+                        >UPCOMING</span
                     >
                 </div>
                 <div v-else class="flex items-center gap-2 shrink-0">
@@ -288,9 +317,9 @@ onUnmounted(() => {
                         <!-- Countdown -->
                         <div class="mt-5">
                             <p
-                                class="text-xs text-white/40 font-semibold tracking-widest mb-3"
+                                class="text-xs text-white/40 font-semibold tracking-widest mb-3 uppercase"
                             >
-                                TIME REMAINING
+                                {{ countdownActionType === 'upcoming' ? 'STARTS IN' : 'TIME REMAINING' }}
                             </p>
                             <div
                                 v-if="!countdown.ended"
@@ -344,7 +373,7 @@ onUnmounted(() => {
 
                     <!-- Bid form -->
                     <div
-                        v-if="!isSeller && isLoggedIn && !countdown.ended"
+                        v-if="!isSeller && isLoggedIn && countdownActionType === 'live'"
                         class="bg-surface-container rounded-3xl p-6 space-y-4"
                     >
                         <!-- Success -->
@@ -451,9 +480,8 @@ onUnmounted(() => {
                         </p>
                     </div>
 
-                    <!-- Not logged in -->
                     <div
-                        v-if="!isLoggedIn"
+                        v-if="!isLoggedIn && countdownActionType === 'live'"
                         class="bg-surface-container rounded-3xl p-5 text-center space-y-3"
                     >
                         <p class="text-sm text-white/50">
@@ -464,6 +492,15 @@ onUnmounted(() => {
                             class="pb-btn-primary inline-block text-sm py-2.5 px-6"
                             >Log In to Bid</Link
                         >
+                    </div>
+                    
+                    <div
+                        v-if="countdownActionType === 'upcoming'"
+                        class="bg-surface-container rounded-3xl p-5 text-center"
+                    >
+                        <p class="text-sm text-white/50">
+                            Bidding opens soon. Stay tuned!
+                        </p>
                     </div>
 
                     <!-- Bid history -->
