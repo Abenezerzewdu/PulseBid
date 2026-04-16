@@ -24,6 +24,7 @@ const navLinks = [
     { label: "Explore", href: "/auctions" },
     { label: "Live", href: "/auctions?filter=live" },
     { label: "Upcoming", href: "/auctions?filter=upcoming" },
+    { label: "How it Works", href: "/how" },
 ];
 // for new messages only notification icon will have the red points to be done
 const hasNewMessages = ref(false);

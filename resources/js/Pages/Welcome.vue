@@ -142,7 +142,7 @@ defineProps({
                     <div class="flex items-center gap-2 mt-1">
                         <span class="pulse-dot"></span>
                         <span class="text-xs text-white/40"
-                            >1,240 PEOPLE BIDDING</span
+                            >12 PEOPLE BIDDING</span
                         >
                     </div>
                 </div>
