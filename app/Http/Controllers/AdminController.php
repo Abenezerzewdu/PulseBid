@@ -24,7 +24,7 @@ class AdminController extends Controller
                 ->where('end_time', '>', $now)
                 ->count(),
             'total_bids' => Bid::count(),
-            'total_revenue' => Transaction::sum('amount') ?? 0,
+            // 'total_revenue' => Transaction::sum('amount') ?? 0,
         ];
 
         $health = [
