@@ -44,6 +44,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{transaction}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{transaction}', [MessageController::class, 'store'])->name('messages.store');
+
+    // Admin Dashboard
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
+    });
 });
 
 require __DIR__.'/auth.php';
