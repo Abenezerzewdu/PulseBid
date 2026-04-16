@@ -290,17 +290,21 @@ defineProps({
                     <p
                         class="font-display text-2xl font-bold text-primary leading-tight"
                     >
-                        PulseBid is the market leader for rare finds.
+                        PulseBid is the market for rare finds.
                     </p>
                     <div class="mt-6 flex gap-8">
                         <div>
-                            <p class="font-display text-2xl font-bold">14.2k</p>
+                            <p class="font-display text-2xl font-bold">
+                                Growing
+                            </p>
                             <p class="text-xs text-white/40 mt-1">
                                 Active Sellers
                             </p>
                         </div>
                         <div>
-                            <p class="font-display text-2xl font-bold">$2.4B</p>
+                            <p class="font-display text-2xl font-bold">
+                                Frequent
+                            </p>
                             <p class="text-xs text-white/40 mt-1">
                                 Auction Volume
                             </p>
